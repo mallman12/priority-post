@@ -5,6 +5,26 @@
   text-align: center;
 }
 
+.App-header {
+  display: flex;
+  align-items: center; /* This vertically aligns the logo and title */
+  justify-content: center; /* This centers them on the page */
+  padding: 1rem;
+}
+
+/* Add this to control the size and spacing of your logo */
+.App-logo {
+  height: 50px; /* Or whatever size you prefer */
+  margin-right: 15px; /* Adds some space between the logo and the title */
+  pointer-events: none;
+}
+
+/* You can adjust existing styles as needed */
+h1 {
+  margin: 0; /* Removes default margin to help with alignment */
+}
+
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -40,3 +60,47 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Turn the form into a flex container and set its direction to vertical.
+  The 'gap' property is a modern and easy way to add space between all the form elements.
+*/
+.card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; /* 1rem is typically 16px. Adjust as you like. */
+}
+
+/* It's also a good idea to add some consistent styling to the input fields themselves
+  for a cleaner, more polished look.
+*/
+.card form input,
+.card form textarea {
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 5px; /* Slightly rounded corners */
+  font-size: 1rem;
+  font-family: inherit; /* Use the same font as the rest of the page */
+}
+
+/* Optional: Add some nice styling to the submit button */
+.card form button {
+  padding: 0.75rem;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff; /* A nice blue, change to your brand color */
+  color: white;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.card form button:hover {
+  background-color: #0056b3; /* A darker blue on hover */
+}
+
+.card form button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+

@@ -28,9 +28,32 @@ function PaidEmailForm() {
         to_email: '', from_name: '', from_email: '', subject: '', message: '',
       });
     } catch (error) {
-      const message = error.response ? error.response.data.message : 'A critical error occurred.';
-      setStatusMessage(`Error: ${message}`);
-    } finally {
+  // Log the full error response so we can see what we're working with
+  console.error("An error was caught:", error.response);
+
+  let errorMessage = 'An unknown error occurred.';
+
+  // Check if a response and data from the server exist
+  if (error.response && error.response.data) {
+    let responseData = error.response.data;
+
+    // If the data is a string, it needs to be parsed into an object first
+    if (typeof responseData === 'string') {
+      try {
+        responseData = JSON.parse(responseData);
+      } catch (parseError) {
+        // If parsing fails, the string itself is likely the error message
+        console.error("Failed to parse error response JSON:", parseError);
+        errorMessage = responseData;
+      }
+    }
+
+    // Now that we're sure responseData is an object, we can get the message
+    errorMessage = responseData.message || 'The server returned an error with no message.';
+  }
+
+  setStatusMessage(`${errorMessage}`);
+} finally {
       setIsLoading(false);
     }
   };

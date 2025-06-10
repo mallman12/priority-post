@@ -23,7 +23,7 @@ export const handler = async (event) => {
 
     if (dbError || !emailData) {
       console.error('Database error or email not found:', dbError);
-      return { statusCode: 404, body: JSON.stringify({ message: "Recipient email not found in our database." }) };
+      return { statusCode: 404, body: JSON.stringify({ message: "Sorry, this address is not registered with us." }) };
     }
 
     // 2. If email exists, SEND the email using the EmailJS REST API
