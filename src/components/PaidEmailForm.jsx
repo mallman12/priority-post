@@ -41,9 +41,20 @@ function PaidEmailForm() {
       setFormData({ to_email: '', from_name: '', from_email: '', subject: '', message: '' });
 
     } catch (error) {
-      setStatusMessage(`Error: ${error.text}`);
-      setIsLoading(false);
-    }
+  // Log the entire error object to the browser console for inspection
+  console.error("A detailed error occurred:", error);
+
+  // Create a more informative message for the user
+  let displayMessage = "An unknown error occurred. Please check the console for details.";
+
+  // EmailJS errors often have a .text property
+  if (error && error.text) {
+    displayMessage = error.text;
+  }
+
+  setStatusMessage(`Error: ${displayMessage}`);
+  setIsLoading(false);
+}
   };
 
   return (
