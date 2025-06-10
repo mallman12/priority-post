@@ -35,7 +35,10 @@ export const handler = async (event) => {
       accessToken: process.env.EMAILJS_PRIVATE_KEY // Your private key for backend authentication
     };
 
+// ... inside the handler, right before the axios.post line
+    console.log("Data being sent to EmailJS:", emailJsData);
     const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', emailJsData);
+//...
 
     if (response.status !== 200) {
       throw new Error('EmailJS failed to send email.');
