@@ -1,9 +1,10 @@
-// src/components/PaidEmailForm.jsx (Simplified for free version)
+// src/components/PaidEmailForm.jsx
+
 import React, { useState } from 'react';
-import emailjs from '@emailjs/browser';
+import axios from 'axios';
 
 function PaidEmailForm() {
-  // The form state remains the same
+  // State to hold all the data from our form inputs
   const [formData, setFormData] = useState({
     to_email: '',
     from_name: '',
@@ -11,65 +12,104 @@ function PaidEmailForm() {
     subject: '',
     message: '',
   });
-  const [statusMessage, setStatusMessage] = useState('');
+
+  // State to manage the loading status (to disable the button)
   const [isLoading, setIsLoading] = useState(false);
 
+  // State to display success or error messages to the user
+  const [statusMessage, setStatusMessage] = useState('');
+
+  // A single handler to update our formData state as the user types
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // The handleSubmit function is now much simpler
+  /**
+   * This function now sends the form data to our own secure Netlify Function
+   * instead of calling EmailJS directly from the frontend.
+   */
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent the default form submission behavior
     setIsLoading(true);
-    setStatusMessage('Sending email...');
-
-    // These are your EmailJS credentials stored in .env.local
-    const serviceID = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const templateID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    setStatusMessage('Verifying recipient and sending email...');
 
     try {
-      // Directly call EmailJS
-      await emailjs.send(serviceID, templateID, formData, publicKey);
+      // Send all the form data to our new backend endpoint
+      const response = await axios.post('/.netlify/functions/send-verified-email', formData);
+
+      // Set the success message from our function's response
+      setStatusMessage(response.data.message);
       
-      setStatusMessage('Email sent successfully!');
-      setIsLoading(false);
-      
-      // Clear the form on success
-      setFormData({ to_email: '', from_name: '', from_email: '', subject: '', message: '' });
+      // Clear the form fields on successful submission
+      setFormData({
+        to_email: '',
+        from_name: '',
+        from_email: '',
+        subject: '',
+        message: '',
+      });
 
     } catch (error) {
-  // Log the entire error object to the browser console for inspection
-  console.error("A detailed error occurred:", error);
-
-  // Create a more informative message for the user
-  let displayMessage = "An unknown error occurred. Please check the console for details.";
-
-  // EmailJS errors often have a .text property
-  if (error && error.text) {
-    displayMessage = error.text;
-  }
-
-  setStatusMessage(`Error: ${displayMessage}`);
-  setIsLoading(false);
-}
+      // If our function returns an error, we display it to the user
+      const message = error.response 
+        ? error.response.data.message 
+        : 'An unknown error occurred. Please try again.';
+      setStatusMessage(`Error: ${message}`);
+    } finally {
+      // Re-enable the button regardless of success or failure
+      setIsLoading(false);
+    }
   };
 
   return (
-    // The form no longer contains the Stripe Card Element
     <form onSubmit={handleSubmit}>
-      <input type="email" name="to_email" value={formData.to_email} onChange={handleInputChange} placeholder="Recipient's Email" required />
-      <input type="text" name="from_name" value={formData.from_name} onChange={handleInputChange} placeholder="Your Name" required />
-      <input type="email" name="from_email" value={formData.from_email} onChange={handleInputChange} placeholder="Your Email" required />
-      <input type="text" name="subject" value={formData.subject} onChange={handleInputChange} placeholder="Subject" required />
-      <textarea name="message" value={formData.message} onChange={handleInputChange} placeholder="Your Message" required />
+      <input
+        type="email"
+        name="to_email"
+        value={formData.to_email}
+        onChange={handleInputChange}
+        placeholder="Recipient's Email"
+        required
+      />
+      <input
+        type="text"
+        name="from_name"
+        value={formData.from_name}
+        onChange={handleInputChange}
+        placeholder="Your Name"
+        required
+      />
+      <input
+        type="email"
+        name="from_email"
+        value={formData.from_email}
+        onChange={handleInputChange}
+        placeholder="Your Email"
+        required
+      />
+      <input
+        type="text"
+        name="subject"
+        value={formData.subject}
+        onChange={handleInputChange}
+        placeholder="Subject"
+        required
+      />
+      <textarea
+        name="message"
+        value={formData.message}
+        onChange={handleInputChange}
+        placeholder="Your Message"
+        required
+        rows={6}
+      />
       
-      {/* The button text is simplified */}
       <button type="submit" disabled={isLoading}>
-        {isLoading ? 'Sending...' : 'Send Email'}
+        {isLoading ? 'Sending...' : 'Send Verified Email'}
       </button>
+
+      {/* Conditionally render the status message if it exists */}
       {statusMessage && <p className="message">{statusMessage}</p>}
     </form>
   );
