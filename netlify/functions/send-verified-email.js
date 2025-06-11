@@ -1,9 +1,9 @@
 // File: netlify/functions/send-verified-email.js
 
 import { createClient } from '@supabase/supabase-js';
-import axios from 'axios/dist/node/axios.cjs';
-// import axios from 'axios';
+import axios from 'axios';
 
+// This client is an "Admin" client because it uses the service_role key
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 export const handler = async (event) => {
@@ -15,17 +15,17 @@ export const handler = async (event) => {
     const formData = JSON.parse(event.body);
     const { to_email } = formData;
 
-    // 1. VERIFY the recipient's email exists in Supabase
-    const { data: emailData, error: dbError } = await supabase
-      .from('emails')
-      .select('email')
-      .eq('email', to_email)
-      .single(); // .single() will error if more than one, or return null if none
+    // --- THIS IS THE UPDATED SECTION ---
+    // 1. VERIFY the recipient's email exists using the Supabase Auth Admin API
+    const { data: userData, error: userError } = await supabase.auth.admin.getUserByEmail(to_email);
 
-    if (dbError || !emailData) {
-      console.error('Database error or email not found:', dbError);
+    // Check if the lookup returned an error or if no user object was found in the data
+    if (userError || !userData.user) {
+      console.error('User not found in Supabase Auth or database error:', userError);
       return { statusCode: 404, body: JSON.stringify({ message: "Sorry, this address is not registered with us." }) };
     }
+    // --- END OF UPDATED SECTION ---
+
 
     // 2. If email exists, SEND the email using the EmailJS REST API
     const emailJsData = {
@@ -33,13 +33,10 @@ export const handler = async (event) => {
       template_id: process.env.VITE_EMAILJS_TEMPLATE_ID,
       user_id: process.env.VITE_EMAILJS_PUBLIC_KEY,
       template_params: formData,
-      accessToken: process.env.EMAILJS_PRIVATE_KEY // Your private key for backend authentication
+      accessToken: process.env.EMAILJS_PRIVATE_KEY
     };
 
-// ... inside the handler, right before the axios.post line
-    console.log("Data being sent to EmailJS:", emailJsData);
     const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', emailJsData);
-//...
 
     if (response.status !== 200) {
       throw new Error('EmailJS failed to send email.');
