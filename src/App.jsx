@@ -6,7 +6,7 @@ import SignupForm from './components/SignupForm';
 import PaidEmailForm from './components/PaidEmailForm';
 import Confirmed from './pages/Confirmed'; // Import your new page
 import './App.css';
-import logo from './assets/mail-logo.png';
+import logo from './assets/mail-logo.svg';
 
 // A new component for your main homepage content
 function HomePage() {
