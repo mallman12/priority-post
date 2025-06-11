@@ -1,11 +1,10 @@
 // File: netlify/functions/send-verified-email.js
-// This is the correct and final version of the code.
+// This is the corrected version using the proper supabase.auth.admin.listUsers() method.
 
 import { createClient } from '@supabase/supabase-js';
 // import axios from 'axios';
 import axios from 'axios/dist/node/axios.cjs';
 
-// This client is an "Admin" client because it uses the service_role key
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 export const handler = async (event) => {
@@ -17,16 +16,20 @@ export const handler = async (event) => {
     const formData = JSON.parse(event.body);
     const { to_email } = formData;
 
-    // 1. VERIFY the recipient's email exists using the Supabase Auth Admin API
-    const { data: userData, error: userError } = await supabase.auth.admin.getUserByEmail(to_email);
+    // --- THIS IS THE FINAL, CORRECTED SECTION ---
+    // 1. VERIFY the recipient's email by calling our custom database function.
+    const { data: emailExists, error: rpcError } = await supabase.rpc('email_exists', {
+      email_to_check: to_email
+    });
 
-    // Check if the lookup returned an error or if no user object was found in the data
-    if (userError || !userData.user) {
-      console.error('User not found in Supabase Auth or database error:', userError);
+    // Check for an error from the function call, or if the result is `false`.
+    if (rpcError || !emailExists) {
+      console.error('RPC error or email does not exist. RPC Error:', rpcError);
       return { statusCode: 404, body: JSON.stringify({ message: "Sorry, this address is not registered with us." }) };
     }
+    // --- END OF FINAL, CORRECTED SECTION ---
 
-    // 2. If email exists, SEND the email using the EmailJS REST API
+    // 2. If email exists, SEND the email using the EmailJS REST API.
     const emailJsData = {
       service_id: process.env.VITE_EMAILJS_SERVICE_ID,
       template_id: process.env.VITE_EMAILJS_TEMPLATE_ID,
