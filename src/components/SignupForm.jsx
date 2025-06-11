@@ -15,10 +15,13 @@ function SignupForm() {
 
     try {
       // Use the built-in Supabase auth function to sign up
-      const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-      });
+	const { data, error } = await supabase.auth.signUp({
+	  email: email,
+ 	 password: password,
+	  options: {
+  	  emailRedirectTo: 'https://prioritypost.org/confirmed'
+ 	 }
+	});
 
       if (error) {
         // If Supabase returns an error, display it
