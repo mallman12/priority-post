@@ -16,20 +16,25 @@ export const handler = async (event) => {
     const formData = JSON.parse(event.body);
     const { to_email } = formData;
 
-    // --- THIS IS THE FINAL, CORRECTED SECTION ---
-    // 1. VERIFY the recipient's email by calling our custom database function.
-    const { data: emailExists, error: rpcError } = await supabase.rpc('email_exists', {
-      email_to_check: to_email
+    // --- THIS IS THE FINAL, CORRECTED VERIFICATION LOGIC ---
+    const { data: { users }, error: userError } = await supabase.auth.admin.listUsers({
+      email: to_email,
     });
 
-    // Check for an error from the function call, or if the result is `false`.
-    if (rpcError || !emailExists) {
-      console.error('RPC error or email does not exist. RPC Error:', rpcError);
-      return { statusCode: 404, body: JSON.stringify({ message: "Sorry, this address is not registered with us." }) };
+    if (userError) {
+      console.error('Supabase admin API failed:', userError);
+      return { statusCode: 500, body: JSON.stringify({ message: "An internal server error occurred." }) };
     }
-    // --- END OF FINAL, CORRECTED SECTION ---
 
-    // 2. If email exists, SEND the email using the EmailJS REST API.
+    const user = users && users.length > 0 ? users[0] : null;
+
+    if (!user || !user.email_confirmed_at) {
+      console.log(`Attempt to email unverified or non-existent user: ${to_email}`);
+      return { statusCode: 404, body: JSON.stringify({ message: "Sorry, this address is not registered or has not been verified." }) };
+    }
+    // --- END OF VERIFICATION LOGIC ---
+
+    // 2. If user is verified, SEND the email using the EmailJS REST API.
     const emailJsData = {
       service_id: process.env.VITE_EMAILJS_SERVICE_ID,
       template_id: process.env.VITE_EMAILJS_TEMPLATE_ID,
