@@ -1,6 +1,14 @@
+# File: netlify.toml
+
 [build]
   command = "npm run build"
   publish = "dist"
 
 [functions]
   external_node_modules = ["axios", "@supabase/supabase-js"]
+
+# The new rule for your React single-page application
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
