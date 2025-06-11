@@ -1,7 +1,7 @@
 // File: netlify/functions/send-verified-email.js
 
 import { createClient } from '@supabase/supabase-js';
-import axios from 'axios';
+const axios = require('axios');
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
