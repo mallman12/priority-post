@@ -1,6 +1,3 @@
-// File: netlify/functions/send-verified-email.js
-// This is the corrected version using the proper supabase.auth.admin.listUsers() method.
-
 import { createClient } from '@supabase/supabase-js';
 // import axios from 'axios';
 import axios from 'axios/dist/node/axios.cjs';
@@ -17,24 +14,19 @@ export const handler = async (event) => {
     const { to_email } = formData;
 
     // --- THIS IS THE FINAL, CORRECTED VERIFICATION LOGIC ---
-    const { data: { users }, error: userError } = await supabase.auth.admin.listUsers({
-      email: to_email,
+    // 1. Call our custom `is_email_verified` function in the database.
+    const { data: isVerified, error: rpcError } = await supabase.rpc('is_email_verified', {
+      email_to_check: to_email
     });
 
-    if (userError) {
-      console.error('Supabase admin API failed:', userError);
-      return { statusCode: 500, body: JSON.stringify({ message: "An internal server error occurred." }) };
-    }
-
-    const user = users && users.length > 0 ? users[0] : null;
-
-    if (!user || !user.email_confirmed_at) {
-      console.log(`Attempt to email unverified or non-existent user: ${to_email}`);
+    // Check for an error from the function call, or if the result is `false`.
+    if (rpcError || !isVerified) {
+      console.error('RPC error or email is not verified:', rpcError);
       return { statusCode: 404, body: JSON.stringify({ message: "Sorry, this address is not registered or has not been verified." }) };
     }
     // --- END OF VERIFICATION LOGIC ---
 
-    // 2. If user is verified, SEND the email using the EmailJS REST API.
+    // 2. If verified, send the email.
     const emailJsData = {
       service_id: process.env.VITE_EMAILJS_SERVICE_ID,
       template_id: process.env.VITE_EMAILJS_TEMPLATE_ID,

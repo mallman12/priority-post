@@ -18,6 +18,9 @@ function PaidEmailForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.log("Data being submitted from the frontend:", formData);
+
     setIsLoading(true);
     setStatusMessage('Sending...');
 
