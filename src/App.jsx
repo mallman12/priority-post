@@ -32,8 +32,17 @@ function Navbar() {
   );
 }
 
-// A simple login/signup page
+// This is the new, correct version
 function AuthPage() {
+  const { session } = useAuth(); // Get the current session state from our context
+
+  // If a session exists, the user is logged in.
+  // We immediately redirect them away from the login page to the homepage.
+  if (session) {
+    return <Navigate to="/" replace />;
+  }
+  
+  // If there's no session, we show the login and signup forms as usual.
   return (
     <main>
       <section className="card">
@@ -47,7 +56,7 @@ function AuthPage() {
         <LoginForm />
       </section>
     </main>
-  )
+  );
 }
 
 // The component for sending emails, now protected
