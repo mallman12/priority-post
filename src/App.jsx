@@ -1,23 +1,68 @@
 // src/App.jsx
-
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { useAuth } from './context/AuthContext'; // Import our new auth hook
 import SignupForm from './components/SignupForm';
+import LoginForm from './components/LoginForm';
 import PaidEmailForm from './components/PaidEmailForm';
-import Confirmed from './pages/Confirmed'; // Import your new page
 import './App.css';
 import logo from './assets/mail-logo.svg';
 
-// A new component for your main homepage content
-function HomePage() {
+// The Navbar component will show the user's status and login/logout links
+function Navbar() {
+  const { session, signOut } = useAuth();
+
+  return (
+    <nav className="navbar">
+      <Link to="/" className="nav-logo">
+        <img src={logo} className="App-logo" alt="Priority Post Logo" />
+        <h1>Priority Post</h1>
+      </Link>
+      <div className="nav-links">
+        {session ? (
+          <>
+            <span>{session.user.email}</span>
+            <button onClick={signOut} className="nav-button">Log Out</button>
+          </>
+        ) : (
+          <Link to="/login">Login / Sign Up</Link>
+        )}
+      </div>
+    </nav>
+  );
+}
+
+// A simple login/signup page
+function AuthPage() {
   return (
     <main>
       <section className="card">
-        <h2>Join Our Platform</h2>
-        <p>Sign up with your email to receive paid messages.</p>
+        <h2>Sign Up</h2>
+        <p>Create a new account to get started.</p>
         <SignupForm />
       </section>
       <section className="card">
+        <h2>Log In</h2>
+        <p>Access your existing account.</p>
+        <LoginForm />
+      </section>
+    </main>
+  )
+}
+
+// The component for sending emails, now protected
+function SendEmailPage() {
+  const { session } = useAuth();
+
+  // If there's no session, redirect to the login page
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  // If there is a session, show the email form
+  return (
+    <main>
+       <section className="card">
         <h2>Send an Email</h2>
         <p>Contact one of our registered users.</p>
         <PaidEmailForm />
@@ -26,23 +71,16 @@ function HomePage() {
   );
 }
 
+
 function App() {
   return (
-    // The Router component wraps your entire application
     <Router>
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="Priority Post Logo" />
-          <h1>Priority Post</h1>
-        </header>
-        
-        {/* The Routes component switches between your pages */}
+        <Navbar />
         <Routes>
-          {/* Route for your homepage */}
-          <Route path="/" element={<HomePage />} />
-          
-          {/* Route for your new confirmation page */}
-          <Route path="/confirmed" element={<Confirmed />} />
+          <Route path="/" element={<SendEmailPage />} />
+          <Route path="/login" element={<AuthPage />} />
+          {/* You can add your /confirmed route here if you still need it */}
         </Routes>
       </div>
     </Router>
