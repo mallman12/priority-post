@@ -104,3 +104,9 @@ h1 {
   cursor: not-allowed;
 }
 
+.nav-links {
+  display: flex;        /* Lays out items in a row */
+  align-items: center;  /* Vertically aligns the text and button */
+  gap: 1rem;            /* <-- ADD THIS LINE: It creates space between items */
+}
+
