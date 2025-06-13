@@ -1,6 +1,6 @@
 // src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext'; // Import our new auth hook
 import SignupForm from './components/SignupForm';
 import LoginForm from './components/LoginForm';
@@ -11,6 +11,7 @@ import logo from './assets/mail-logo.svg';
 // The Navbar component will show the user's status and login/logout links
 function Navbar() {
   const { session, signOut } = useAuth();
+  const location = useLocation(); // Get the current location object
 
   return (
     <nav className="navbar">
@@ -20,12 +21,17 @@ function Navbar() {
       </Link>
       <div className="nav-links">
         {session ? (
+          // If the user IS logged in, show their email and a logout button
           <>
             <span>{session.user.email}</span>
             <button onClick={signOut} className="nav-button">Log Out</button>
           </>
         ) : (
-          <Link to="/login">Login / Sign Up</Link>
+          // If the user is NOT logged in, we add a check for the current path
+          // The '&&' means the link will only render if the condition is true
+          location.pathname !== '/login' && (
+            <Link to="/login">Login / Sign Up</Link>
+          )
         )}
       </div>
     </nav>

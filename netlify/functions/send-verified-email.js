@@ -5,6 +5,9 @@ import axios from 'axios/dist/node/axios.cjs';
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
 export const handler = async (event) => {
+
+  console.log("Backend function received event body:", event.body);
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
