@@ -1,17 +1,18 @@
-// src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from './context/AuthContext'; // Import our new auth hook
+import { useAuth } from './context/AuthContext';
 import SignupForm from './components/SignupForm';
 import LoginForm from './components/LoginForm';
 import PaidEmailForm from './components/PaidEmailForm';
+import Confirmed from './pages/Confirmed';
+import HowItWorks from './pages/HowItWorks';
 import './App.css';
 import logo from './assets/mail-logo.svg';
 
-// The Navbar component will show the user's status and login/logout links
+// --- NAVBAR COMPONENT (No changes here) ---
 function Navbar() {
   const { session, signOut } = useAuth();
-  const location = useLocation(); // Get the current location object
+  const location = useLocation();
 
   return (
     <nav className="navbar">
@@ -20,25 +21,50 @@ function Navbar() {
         <h1>Priority Post</h1>
       </Link>
       <div className="nav-links">
-        {session ? (
-          // If the user IS logged in, show their email and a logout button
+        {location.pathname === '/how-it-works' ? (
+	<Link to="/" className="back-to-app-link">← Back to Main Page</Link>
+        ) : session ? (
           <>
             <span>{session.user.email}</span>
             <button onClick={signOut} className="nav-button">Log Out</button>
           </>
         ) : (
-          // If the user is NOT logged in, we add a check for the current path
-          // The '&&' means the link will only render if the condition is true
-          location.pathname !== '/login' && (
-            <Link to="/login">Login / Sign Up</Link>
-          )
+          location.pathname !== '/login' && <Link to="/login">Login / Sign Up</Link>
         )}
       </div>
     </nav>
   );
 }
 
-// This is the new, correct version
+// --- APP LAYOUT COMPONENT (This is the new part) ---
+// This component contains our main layout and can use hooks like useLocation.
+function AppLayout() {
+  const location = useLocation(); // Get the current location
+
+  return (
+    <div className="App">
+      <Navbar />
+
+      {/* --- CONDITIONAL SUB-HEADER --- */}
+      {/* We only show the sub-header if the path is NOT '/how-it-works' */}
+      {location.pathname !== '/how-it-works' && (
+        <div className="sub-header">
+          <Link to="/how-it-works" className="sub-header-link">How it Works</Link>
+        </div>
+      )}
+
+      {/* --- PAGE CONTENT --- */}
+      <Routes>
+        <Route path="/" element={<SendEmailPage />} />
+        <Route path="/login" element={<AuthPage />} />
+        <Route path="/confirmed" element={<Confirmed />} />
+        <Route path="/how-it-works" element={<HowItWorks />} />
+      </Routes>
+    </div>
+  );
+}
+
+
 function AuthPage() {
   const { session } = useAuth(); // Get the current session state from our context
 
@@ -86,18 +112,10 @@ function SendEmailPage() {
   );
 }
 
-
 function App() {
   return (
     <Router>
-      <div className="App">
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<SendEmailPage />} />
-          <Route path="/login" element={<AuthPage />} />
-          {/* You can add your /confirmed route here if you still need it */}
-        </Routes>
-      </div>
+      <AppLayout />
     </Router>
   );
 }

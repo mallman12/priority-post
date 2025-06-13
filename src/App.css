@@ -104,9 +104,66 @@ h1 {
   cursor: not-allowed;
 }
 
+.navbar {
+  display: flex;
+  align-items: center; /* Vertically aligns all items */
+  padding: 1rem 2rem;
+  background-color: #282c34;
+  gap: 2rem; /* Creates space between the items on the left */
+}
+
+.navbar-item:hover {
+  color: white;
+}
+
 .nav-links {
-  display: flex;        /* Lays out items in a row */
-  align-items: center;  /* Vertically aligns the text and button */
-  gap: 1rem;            /* <-- ADD THIS LINE: It creates space between items */
+  margin-left: auto; /* <-- THIS IS THE KEY TRICK */
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: white;
+}
+
+.App-logo {
+  height: 40px; /* Example size */
+}
+
+.sub-header {
+  text-align: center;
+  padding: 1.5rem 0; /* Adds space above and below the link */
+}
+
+/* We update the link's color, size, and weight */
+.sub-header-link {
+  /* This is the golden-yellow hex code from your logo */
+  color: #FFD13D;
+  
+  font-size: 1.5rem; /* Makes the font larger. Feel free to adjust! */
+  font-weight: bold;   /* Makes the text bolder */
+  text-decoration: none;
+  transition: opacity 0.2s ease-in-out; /* Adds a nice, subtle animation */
+}
+
+.sub-header-link:hover {
+  /* A subtle fade effect on hover to show it's clickable */
+  opacity: 0.8;
+}
+
+.back-to-app-link {
+  font-size: 1.1rem; /* Makes the font larger. Adjust as you like! */
+  font-weight: 500;
+  color: #FFD13D;
+  text-decoration: none;
+}
+
+.back-to-app-link:hover {
+  text-decoration: underline;
 }
 
