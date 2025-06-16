@@ -8,8 +8,8 @@ import Confirmed from './pages/Confirmed';
 import HowItWorks from './pages/HowItWorks';
 import './App.css';
 import logo from './assets/mail-logo.svg';
+import StripeFeeSetup from './components/StripeFeeSetup';
 
-// --- NAVBAR COMPONENT (No changes here) ---
 function Navbar() {
   const { session, signOut } = useAuth();
   const location = useLocation();
@@ -21,11 +21,12 @@ function Navbar() {
         <h1>Priority Post</h1>
       </Link>
       <div className="nav-links">
-        {location.pathname === '/how-it-works' ? (
-	<Link to="/" className="back-to-app-link">← Back to Main Page</Link>
-        ) : session ? (
+        {session ? (
           <>
             <span>{session.user.email}</span>
+            {location.pathname === '/how-it-works' || location.pathname === '/settings' ? (
+              <Link to="/" className="back-to-app-link">← Back to Main Page</Link>
+            ) : null}
             <button onClick={signOut} className="nav-button">Log Out</button>
           </>
         ) : (
@@ -39,17 +40,18 @@ function Navbar() {
 // --- APP LAYOUT COMPONENT (This is the new part) ---
 // This component contains our main layout and can use hooks like useLocation.
 function AppLayout() {
-  const location = useLocation(); // Get the current location
+  const location = useLocation();
 
   return (
     <div className="App">
       <Navbar />
 
       {/* --- CONDITIONAL SUB-HEADER --- */}
-      {/* We only show the sub-header if the path is NOT '/how-it-works' */}
-      {location.pathname !== '/how-it-works' && (
+      {/* We now show both links here, but only on the main page */}
+      {location.pathname === '/' && (
         <div className="sub-header">
           <Link to="/how-it-works" className="sub-header-link">How it Works</Link>
+          <Link to="/settings" className="sub-header-link">Settings</Link>
         </div>
       )}
 
@@ -59,11 +61,11 @@ function AppLayout() {
         <Route path="/login" element={<AuthPage />} />
         <Route path="/confirmed" element={<Confirmed />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
+        <Route path="/settings" element={<StripeFeeSetup />} />
       </Routes>
     </div>
   );
 }
-
 
 function AuthPage() {
   const { session } = useAuth(); // Get the current session state from our context
@@ -105,7 +107,6 @@ function SendEmailPage() {
     <main>
        <section className="card">
         <h2>Send an Email</h2>
-        <p>Contact one of our registered users.</p>
         <PaidEmailForm />
       </section>
     </main>

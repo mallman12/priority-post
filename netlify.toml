@@ -5,7 +5,7 @@
   publish = "dist"
 
 [functions]
-  external_node_modules = ["axios", "@supabase/supabase-js"]
+  external_node_modules = ["axios", "@supabase/supabase-js", "stripe"]
 
 # The new rule for your React single-page application
 [[redirects]]

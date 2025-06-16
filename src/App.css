@@ -136,8 +136,10 @@ h1 {
 }
 
 .sub-header {
-  text-align: center;
-  padding: 1.5rem 0; /* Adds space above and below the link */
+  display: flex;
+  justify-content: center;
+  gap: 2rem; /* Adds space between the links */
+  padding: 1.5rem 0;
 }
 
 /* We update the link's color, size, and weight */
@@ -165,5 +167,14 @@ h1 {
 
 .back-to-app-link:hover {
   text-decoration: underline;
+}
+
+.recipient-status {
+  font-size: 0.9em;
+  font-style: italic;
+  color: #888;
+  text-align: left;
+  margin-top: -0.75rem; /* Pulls the text up closer to the input */
+  margin-bottom: 0.75rem; /* Adds space below it */
 }
 
