@@ -1,4 +1,7 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+import Stripe from 'stripe';
+
+// The Stripe library is now imported and then instantiated
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -17,7 +20,7 @@ export const handler = async (event) => {
             product_data: {
               name: `Email to ${recipientEmail}`,
             },
-            unit_amount: Math.round(amount * 100), // Amount in cents
+            unit_amount: Math.round(amount * 100),
           },
           quantity: 1,
         },
@@ -39,6 +42,8 @@ export const handler = async (event) => {
       body: JSON.stringify({ id: session.id }),
     };
   } catch (error) {
+    // Added better error logging for any future debugging
+    console.error("Stripe session creation failed:", error);
     return { statusCode: 500, body: JSON.stringify({ error: error.message }) };
   }
 };
